@@ -1,0 +1,5 @@
+/target
+.env
+config.json
+config.local.json
+config.server.json
