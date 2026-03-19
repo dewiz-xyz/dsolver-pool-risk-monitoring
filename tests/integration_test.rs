@@ -44,8 +44,8 @@ fn mock_simulation_response(request_id: &str) -> serde_json::Value {
             }
         ],
         "meta": {
-            "status": "success",
-            "result_quality": "high",
+            "status": "ready",
+            "result_quality": "complete",
             "block_number": 19500000,
             "vm_block_number": 19500000,
             "matching_pools": 2,
@@ -77,8 +77,8 @@ fn mock_high_risk_response(request_id: &str) -> serde_json::Value {
             }
         ],
         "meta": {
-            "status": "success",
-            "result_quality": "low",
+            "status": "ready",
+            "result_quality": "complete",
             "block_number": 19500001,
             "vm_block_number": 19500001,
             "matching_pools": 1,
@@ -156,7 +156,7 @@ async fn test_mock_server_returns_valid_response() {
     assert_eq!(resp.status(), 200);
 
     let parsed: serde_json::Value = resp.json().await.unwrap();
-    assert_eq!(parsed["meta"]["status"], "success");
+    assert_eq!(parsed["meta"]["status"], "ready");
     assert_eq!(parsed["data"].as_array().unwrap().len(), 2);
 }
 

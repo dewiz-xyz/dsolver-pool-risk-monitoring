@@ -55,7 +55,7 @@ pub struct Meta {
     pub status: String,
     pub result_quality: String,
     pub block_number: u64,
-    pub vm_block_number: u64,
+    pub vm_block_number: Option<u64>,
     pub matching_pools: u32,
     pub candidate_pools: u32,
     pub total_pools: u32,
