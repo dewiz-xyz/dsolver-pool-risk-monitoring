@@ -90,10 +90,10 @@ async fn insert_pool_result(
         r#"
         INSERT INTO pool_result (
             id, simulation_result_id, pool_address, pool_name,
-            amounts_out, gas_used, gas_in_sell, block_number,
+            amounts_out, gas_used, block_number,
             slippage_bps, pool_utilization_bps, risk_score, risk_level
         )
-        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12)
+        VALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)
         "#,
     )
     .bind(Uuid::new_v4())
@@ -102,7 +102,6 @@ async fn insert_pool_result(
     .bind(&pool_data.pool_name)
     .bind(&amounts_out)
     .bind(&gas_used)
-    .bind(&pool_data.gas_in_sell)
     .bind(pool_data.block_number as i64)
     .bind(&slippage_bps)
     .bind(pool_data.pool_utilization_bps)

@@ -24,7 +24,6 @@ CREATE TABLE IF NOT EXISTS pool_result (
     pool_name             TEXT        NOT NULL,
     amounts_out           JSONB       NOT NULL,
     gas_used              JSONB       NOT NULL,
-    gas_in_sell           TEXT        NOT NULL,
     block_number          BIGINT      NOT NULL,
     slippage_bps          JSONB       NOT NULL,
     pool_utilization_bps  INTEGER     NOT NULL,
