@@ -3,3 +3,7 @@
 config.json
 config.local.json
 config.server.json
+.vscode/
+.idea/
+*.log
+.claude/
