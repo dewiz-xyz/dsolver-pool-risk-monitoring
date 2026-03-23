@@ -71,7 +71,7 @@ cp config.json config.local.json
 # Edit config.local.json with your values
 
 # 3. Run
-CONFIG_PATH=config.local.json RUSTFLAGS="-C target-cpu=native -C link-arg=-s" cargo run --release > system-monitoring.log 2>&1 &
+RUSTFLAGS="-C target-cpu=native -C link-arg=-s" cargo run --release > system-monitoring.log 2>&1 &
 ```
 
 Tables and indexes are created automatically on startup via `migrations/001_create_tables.sql`.
