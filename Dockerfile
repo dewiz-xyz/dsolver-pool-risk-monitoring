@@ -25,7 +25,7 @@ RUN apt-get update && \
 RUN groupadd --gid 1000 app && \
     useradd --uid 1000 --gid app --create-home app
 
-COPY --from=builder /app/target/release/tycho-simulator-server_risk-monitoring /usr/local/bin/app
+COPY --from=builder /app/target/release/dsolver-pool-risk-monitoring /usr/local/bin/app
 COPY config.json /etc/app/config.json
 
 USER app

@@ -1,8 +1,8 @@
 [package]
-name = "tycho-simulator-server_risk-monitoring"
+name = "dsolver-pool-risk-monitoring"
 version = "0.2.0"
 edition = "2021"
-rust-version = "1.75"
+rust-version = "1.91.0"
 
 [dependencies]
 tokio = { version = "1", features = ["full"] }

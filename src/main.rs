@@ -6,12 +6,12 @@ use std::time::Duration;
 use tokio::signal;
 use tracing_subscriber::EnvFilter;
 
-use tycho_simulator_server_risk_monitoring::api::{self, ApiState};
-use tycho_simulator_server_risk_monitoring::client::{run_all_simulations, SimulationClient};
-use tycho_simulator_server_risk_monitoring::config::AppConfig;
-use tycho_simulator_server_risk_monitoring::db;
-use tycho_simulator_server_risk_monitoring::metrics;
-use tycho_simulator_server_risk_monitoring::models::SimulationParams;
+use dsolver_pool_risk_monitoring::api::{self, ApiState};
+use dsolver_pool_risk_monitoring::client::{run_all_simulations, SimulationClient};
+use dsolver_pool_risk_monitoring::config::AppConfig;
+use dsolver_pool_risk_monitoring::db;
+use dsolver_pool_risk_monitoring::metrics;
+use dsolver_pool_risk_monitoring::models::SimulationParams;
 
 fn main() {
     let rt = tokio::runtime::Builder::new_multi_thread()

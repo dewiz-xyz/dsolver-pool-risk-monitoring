@@ -1,6 +1,6 @@
-# Tycho Simulator Risk Monitoring
+# dSolver Pool Risk Monitoring
 
-Polls a [Tycho Simulator](https://github.com/propeller-heads/tycho-simulation) API to evaluate swap execution risk across Ethereum DEX pools, persists results in Postgres, fires configurable alerts, and exposes a REST API with Prometheus metrics.
+Polls a simulation API to evaluate swap execution risk across Ethereum DEX pools, persists results in Postgres, fires configurable alerts, and exposes a REST API with Prometheus metrics.
 
 ## Architecture
 
@@ -99,7 +99,7 @@ Example:
 
 ```json
 {
-    "database_url": "postgres://user:pass@localhost:5432/tycho_risk",
+    "database_url": "postgres://user:pass@localhost:5432/dsolver_risk",
     "simulation_api_url": "http://simulator:3000/simulate",
     "poll_interval_secs": 60,
     "api_port": 3000,
@@ -320,7 +320,7 @@ sudo systemctl restart grafana-server
 | Prometheus | http://localhost:9090 | —                   |
 | Grafana    | http://localhost:3000 | admin / admin       |
 
-The dashboard **Tycho Risk Monitor** loads automatically on first Grafana start.
+The dashboard **dSolver Pool Risk Monitor** loads automatically on first Grafana start.
 
 > **Note:** Grafana defaults to port 3000, the same as the app. If both run on the same machine, change the Grafana port in its config:
 >
@@ -366,7 +366,7 @@ curl -X POST http://localhost:9090/-/reload
 
 ```bash
 # Build
-docker build -t tycho-risk-monitor .
+docker build -t dsolver-pool-risk-monitoring .
 
 # Run
 docker run -d \
@@ -374,7 +374,7 @@ docker run -d \
   -e SIMULATION_API_URL=http://simulator:3000/simulate \
   -e API_KEY=my-secret \
   -p 3000:3000 \
-  tycho-risk-monitor
+  dsolver-pool-risk-monitoring
 ```
 
 Override `config.json` by mounting a volume:

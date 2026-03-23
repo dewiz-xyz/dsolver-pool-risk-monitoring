@@ -164,17 +164,17 @@ async fn test_mock_server_returns_valid_response() {
 #[tokio::test]
 async fn test_alert_evaluation_high_risk() {
     let response_json = mock_high_risk_response("alert-test-1");
-    let response: tycho_simulator_server_risk_monitoring::models::SimulationResponse =
+    let response: dsolver_pool_risk_monitoring::models::SimulationResponse =
         serde_json::from_value(response_json).unwrap();
 
-    let alert_config = tycho_simulator_server_risk_monitoring::config::AlertConfig {
+    let alert_config = dsolver_pool_risk_monitoring::config::AlertConfig {
         risk_score_threshold: 70,
         slippage_bps_threshold: 500,
         webhook_url: None,
     };
 
     let alerts =
-        tycho_simulator_server_risk_monitoring::alerts::evaluate_response(&alert_config, &response);
+        dsolver_pool_risk_monitoring::alerts::evaluate_response(&alert_config, &response);
 
     // Should fire: risk_score=92 >= 70, slippage=850 >= 500
     assert!(alerts.len() >= 2, "expected at least 2 alerts, got {}", alerts.len());
@@ -193,17 +193,17 @@ async fn test_alert_evaluation_high_risk() {
 #[tokio::test]
 async fn test_alert_evaluation_no_alerts() {
     let response_json = mock_simulation_response("safe-test-1");
-    let response: tycho_simulator_server_risk_monitoring::models::SimulationResponse =
+    let response: dsolver_pool_risk_monitoring::models::SimulationResponse =
         serde_json::from_value(response_json).unwrap();
 
-    let alert_config = tycho_simulator_server_risk_monitoring::config::AlertConfig {
+    let alert_config = dsolver_pool_risk_monitoring::config::AlertConfig {
         risk_score_threshold: 70,
         slippage_bps_threshold: 500,
         webhook_url: None,
     };
 
     let alerts =
-        tycho_simulator_server_risk_monitoring::alerts::evaluate_response(&alert_config, &response);
+        dsolver_pool_risk_monitoring::alerts::evaluate_response(&alert_config, &response);
     assert!(alerts.is_empty(), "expected 0 alerts for safe pools");
 }
 
@@ -215,7 +215,7 @@ async fn test_config_load_and_env_override() {
     std::env::set_var("DATABASE_URL", "postgres://override:override@db:5432/test");
 
     let config =
-        tycho_simulator_server_risk_monitoring::config::AppConfig::load(tmp.path()).unwrap();
+        dsolver_pool_risk_monitoring::config::AppConfig::load(tmp.path()).unwrap();
 
     assert_eq!(config.database_url, "postgres://override:override@db:5432/test");
     assert_eq!(config.poll_interval_secs, 30);
@@ -237,7 +237,7 @@ async fn test_config_rejects_empty_pairs() {
     let mut f = tempfile::NamedTempFile::new().unwrap();
     write!(f, "{}", serde_json::to_string(&config_json).unwrap()).unwrap();
 
-    let result = tycho_simulator_server_risk_monitoring::config::AppConfig::load(f.path());
+    let result = dsolver_pool_risk_monitoring::config::AppConfig::load(f.path());
     assert!(result.is_err());
 }
 
@@ -253,7 +253,7 @@ async fn test_webhook_delivery() {
         .mount(&mock_server)
         .await;
 
-    let alerts = vec![tycho_simulator_server_risk_monitoring::alerts::Alert {
+    let alerts = vec![dsolver_pool_risk_monitoring::alerts::Alert {
         alert_type: "high_risk_score".into(),
         severity: "critical".into(),
         pool_address: "0xdead".into(),
@@ -268,7 +268,7 @@ async fn test_webhook_delivery() {
     let client = reqwest::Client::new();
     let url = format!("{}/webhook", mock_server.uri());
 
-    tycho_simulator_server_risk_monitoring::alerts::deliver_webhook(
+    dsolver_pool_risk_monitoring::alerts::deliver_webhook(
         &client, &url, &alerts,
     )
     .await;
