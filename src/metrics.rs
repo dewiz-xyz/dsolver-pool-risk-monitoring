@@ -57,6 +57,20 @@ pub fn set_block_number(block: u64) {
     gauge!("latest_block_number").set(block as f64);
 }
 
+// ─── Risk-level counters ─────────────────────────────────────────────────
+
+/// Increments the per-pool, per-risk-level assessment counter.
+/// Use `increase(pool_risk_level_assessments_total[1h])` in Grafana to see
+/// how many assessments per risk category occurred in each hourly bucket.
+pub fn record_risk_level(pool_name: &str, risk_level: &str) {
+    counter!(
+        "pool_risk_level_assessments_total",
+        "pool" => pool_name.to_string(),
+        "risk_level" => risk_level.to_string()
+    )
+    .increment(1);
+}
+
 // ─── Alert counters ──────────────────────────────────────────────────────
 
 pub fn record_alert_fired(alert_type: &str) {

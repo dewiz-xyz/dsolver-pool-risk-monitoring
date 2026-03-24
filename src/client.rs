@@ -159,6 +159,7 @@ impl SimulationClient {
                 &pool.pool_address,
                 pool.pool_utilization_bps,
             );
+            metrics::record_risk_level(&pool.pool_name, &pool.execution_risk.risk_level);
         }
 
         // ── Evaluate alerts ──────────────────────────────────────
