@@ -68,7 +68,7 @@ pg_dump "$DATABASE_URL" \
     --data-only \
     --inserts \
     --table=result \
-    > "$RESULT_FILE"
+    > "$RESULT_FILE"./
 echo "  Done. $(wc -l < "$RESULT_FILE") line(s) written."
 
 # Dump 'pool_result' table (data only, INSERT statements)
