@@ -122,3 +122,12 @@ pub struct ListPoolsQuery {
     pub pool_address: Option<String>,
     pub min_risk_score: Option<i32>,
 }
+
+/// One row from the risk-level summary aggregation query.
+#[derive(Debug, Clone, sqlx::FromRow, Serialize)]
+pub struct RiskLevelSummaryRow {
+    pub pool_name: String,
+    pub extraction_date: String,
+    pub risk_level: String,
+    pub total_assessment_per_risk_type: i64,
+}

@@ -13,7 +13,7 @@ use uuid::Uuid;
 
 use crate::models::{
     ApiListResponse, HealthResponse, ListPoolsQuery, ListResultsQuery,
-    PoolResultRow, SimulationResultRow,
+    PoolResultRow, RiskLevelSummaryRow, SimulationResultRow,
 };
 
 /// Shared state injected into every handler.
@@ -60,6 +60,7 @@ pub fn router(state: Arc<ApiState>) -> Router {
         .route("/api/v1/results/{id}/pools", get(get_pools_for_result))
         .route("/api/v1/pools", get(list_pools))
         .route("/api/v1/pools/high-risk", get(high_risk_pools))
+        .route("/api/v1/pools/risk-summary", get(risk_level_summary))
         .layer(middleware::from_fn_with_state(
             state.clone(),
             api_key_auth,
@@ -301,6 +302,33 @@ async fn high_risk_pools(
         "#,
     )
     .bind(state.risk_score_threshold)
+    .fetch_all(&state.db)
+    .await?;
+
+    Ok(Json(ApiListResponse {
+        count: rows.len(),
+        data: rows,
+    }))
+}
+
+/// Returns aggregated risk-level counts per pool per hour,
+/// derived from `calc-total-risk-levels.sql`.
+async fn risk_level_summary(
+    State(state): State<Arc<ApiState>>,
+) -> Result<Json<ApiListResponse<RiskLevelSummaryRow>>, AppApiError> {
+    let rows = sqlx::query_as::<_, RiskLevelSummaryRow>(
+        r#"
+        SELECT
+            a.pool_name,
+            TO_CHAR(b.created_at, 'YYYY.MM.DD.HH24') AS extraction_date,
+            a.risk_level,
+            COUNT(a.pool_name) AS total_assessment_per_risk_type
+        FROM pool_result AS a
+        JOIN result AS b ON b.id = a.simulation_result_id
+        GROUP BY a.pool_name, extraction_date, a.risk_level
+        ORDER BY a.pool_name, extraction_date
+        "#,
+    )
     .fetch_all(&state.db)
     .await?;
 
