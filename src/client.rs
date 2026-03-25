@@ -114,6 +114,7 @@ impl SimulationClient {
             token_in: params.token_in.clone(),
             token_out: params.token_out.clone(),
             amounts: params.amounts.clone(),
+            pool_type: params.pool_type.clone(),
         };
 
         tracing::info!(

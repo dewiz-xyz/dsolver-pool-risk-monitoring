@@ -10,6 +10,7 @@ pub struct SimulationRequest {
     pub token_in: String,
     pub token_out: String,
     pub amounts: Vec<String>,
+    pub pool_type: String,
 }
 
 /// Parameters supplied by the caller — the request_id (UUID) is generated
@@ -19,6 +20,7 @@ pub struct SimulationParams {
     pub token_in: String,
     pub token_out: String,
     pub amounts: Vec<String>,
+    pub pool_type: String,
 }
 
 // ─── Response Models ──────────────────────────────────────────────

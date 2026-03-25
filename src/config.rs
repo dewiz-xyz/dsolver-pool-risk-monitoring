@@ -43,6 +43,8 @@ pub struct TokenPairConfig {
     pub token_out: String,
     /// Raw amounts as decimal strings (wei / smallest unit).
     pub amounts: Vec<String>,
+    /// Pool type for alerting and metrics labeling (e.g. "blue_chip", "volatile").
+    pub pool_type: String,
 }
 
 #[derive(Debug, Clone, Deserialize)]
@@ -153,6 +155,7 @@ impl From<&TokenPairConfig> for crate::models::SimulationParams {
             token_in: tp.token_in.clone(),
             token_out: tp.token_out.clone(),
             amounts: tp.amounts.clone(),
+            pool_type: tp.pool_type.clone(),
         }
     }
 }
