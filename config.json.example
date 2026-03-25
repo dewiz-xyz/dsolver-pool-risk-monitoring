@@ -1,64 +1,84 @@
 {
-    "database_url": "postgres://rust:teste@localhost:5432/postgres",
-    "simulation_api_url": "http://1.1.1.1:8080/simulate",
-    "poll_interval_secs": 2,
-    "api_port": 3000,
-    "api_key": null,
-    "rate_limit_rps": 10,
-    "retry": {
-        "max_retries": 3,
-        "initial_backoff_ms": 500
+  "database_url": "postgres://meow:meow@localhost:1234/garfield",
+  "simulation_api_url": "http://1.1.1.1:9876/what",
+  "poll_interval_secs": 2,
+  "api_port": 9123,
+  "api_key": null,
+  "rate_limit_rps": 10,
+  "retry": {
+    "max_retries": 3,
+    "initial_backoff_ms": 500
+  },
+  "alerts": {
+    "risk_score_threshold": 70,
+    "slippage_bps_threshold": 500,
+    "webhook_url": null
+  },
+  "token_pairs": [
+    {
+      "label": "DAI → USDC",
+      "token_in": "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
+      "token_out": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "amounts": ["1000000000000000000", "5000000000000000000"],
+      "pool_type": "stablecoin"
     },
-    "alerts": {
-        "risk_score_threshold": 70,
-        "slippage_bps_threshold": 500,
-        "webhook_url": null
+    {
+      "label": "USDC → USDT",
+      "token_in": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "token_out": "0xfde4C96c8593536E31F229EA8f37b2ADa2699bb2",
+      "amounts": ["1000000", "10000000"],
+      "pool_type": "stablecoin"
+
     },
-    "token_pairs": [
-        {
-            "label": "DAI → USDC",
-            "token_in": "0x6b175474e89094c44da98b954eedeac495271d0f",
-            "token_out": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-            "amounts": [
-                "1000000000000000000",
-                "5000000000000000000"
-            ]
-        },
-        {
-            "label": "USDC → USDT",
-            "token_in": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-            "token_out": "0xdac17f958d2ee523a2206206994597c13d831ec7",
-            "amounts": [
-                "1000000",
-                "10000000"
-            ]
-        },
-        {
-            "label": "WETH → DAI",
-            "token_in": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-            "token_out": "0x6b175474e89094c44da98b954eedeac495271d0f",
-            "amounts": [
-                "500000000000000000",
-                "1000000000000000000"
-            ]
-        },
-        {
-            "label": "WBTC → USDC",
-            "token_in": "0x2260fac5e5542a773aa44fbcfedf7c193bc2c599",
-            "token_out": "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48",
-            "amounts": [
-                "10000000",
-                "100000000"
-            ]
-        },
-        {
-            "label": "LINK → WETH",
-            "token_in": "0x514910771af9ca656af840dff83e8264ecf986ca",
-            "token_out": "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
-            "amounts": [
-                "100000000000000000000",
-                "1000000000000000000000"
-            ]
-        }
-    ]
+    {
+      "label": "WETH → DAI",
+      "token_in": "0x4200000000000000000000000000000000000006",
+      "token_out": "0x50c5725949A6F0c72E6C4a641F24049A917DB0Cb",
+      "amounts": ["500000000000000000", "1000000000000000000"],
+      "pool_type": "blue_chip"
+    },
+    {
+      "label": "cbBTC → USDC",
+      "token_in": "0xcbB7C0000aB88B473b1f5aFd9ef808440eed33Bf",
+      "token_out": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "amounts": ["10000000", "100000000"],
+      "pool_type": "volatile"
+
+    },
+    {
+      "label": "LINK → WETH",
+      "token_in": "0x88Fb150BDc53A65fe94Dea0c9BA0a6dAf8C6e196",
+      "token_out": "0x4200000000000000000000000000000000000006",
+      "amounts": ["100000000000000000000", "1000000000000000000000"],
+      "pool_type": "volatile"
+    },
+    {
+      "label": "WETH → USDC",
+      "token_in": "0x4200000000000000000000000000000000000006",
+      "token_out": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "amounts": ["100000000000000000000", "1000000000000000000000"],
+      "pool_type": "blue_chip"
+    },
+    {
+      "label": "AAVE → USDC",
+      "token_in": "0x63706e401c06ac8513145b7687A14804d17f814b",
+      "token_out": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "amounts": ["1000000000000000000", "10000000000000000000"],
+      "pool_type": "blue_chip"
+    },
+    {
+      "label": "UNI → USDC",
+      "token_in": "0xc3De830EA07524a0761646a6a4e4be0e114a3C83",
+      "token_out": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "amounts": ["1000000000000000000", "10000000000000000000"],
+      "pool_type": "blue_chip"
+    },
+    {
+      "label": "SPK → USDC",
+      "token_in": "0x692A07f2306a3bba739e5281A26A5a97C6D7A6cA",
+      "token_out": "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913",
+      "amounts": ["1000000000000000000", "10000000000000000000"],
+      "pool_type": "volatile"
+    }
+  ]
 }
