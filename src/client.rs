@@ -1,8 +1,6 @@
-use std::result;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
-use axum::http::response;
 use reqwest::Client;
 use sqlx::PgPool;
 use uuid::Uuid;
