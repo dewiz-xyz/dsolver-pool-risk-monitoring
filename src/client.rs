@@ -164,7 +164,9 @@ impl SimulationClient {
         }
 
         // ── Evaluate alerts ──────────────────────────────────────
-        let fired = alerts::evaluate_response(&self.alert_config, &response);
+        // TODO: Ommit alerts temporarily until we have a better understanding of the data shape and distribution.
+        // let fired = alerts::evaluate_response(&self.alert_config, &response);
+        let fired: Vec<Alert> = vec![]; 
 
         if !fired.is_empty() {
             if let Some(ref url) = self.alert_config.webhook_url {
