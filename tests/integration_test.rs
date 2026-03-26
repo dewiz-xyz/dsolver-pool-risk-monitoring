@@ -333,7 +333,9 @@ fn lazy_api_state(api_key: Option<&str>) -> Arc<dsolver_pool_risk_monitoring::ap
 #[test]
 fn test_risk_level_summary_row_serializes_correctly() {
     let row = dsolver_pool_risk_monitoring::models::RiskLevelSummaryRow {
-        pool_name: "aerodrome_slipstreams::USDC/USDT".into(),
+        currencies: "USDC/USDT".into(),
+        pool_address: "0xABC".into(),
+        pool: "aerodrome_slipstreams".into(),
         extraction_date: "2026.03.24.14".into(),
         risk_level: "low".into(),
         total_assessment_per_risk_type: 42,
@@ -341,7 +343,9 @@ fn test_risk_level_summary_row_serializes_correctly() {
 
     let json = serde_json::to_value(&row).unwrap();
 
-    assert_eq!(json["pool_name"], "aerodrome_slipstreams::USDC/USDT");
+    assert_eq!(json["currencies"], "USDC/USDT");
+    assert_eq!(json["pool_address"], "0xABC");
+    assert_eq!(json["pool"], "aerodrome_slipstreams");
     assert_eq!(json["extraction_date"], "2026.03.24.14");
     assert_eq!(json["risk_level"], "low");
     assert_eq!(json["total_assessment_per_risk_type"], 42);
@@ -352,13 +356,17 @@ fn test_risk_level_summary_row_serializes_correctly() {
 fn test_api_list_response_risk_summary_shape() {
     let rows = vec![
         dsolver_pool_risk_monitoring::models::RiskLevelSummaryRow {
-            pool_name: "pool_a".into(),
+            currencies: "USDC/USDT".into(),
+            pool_address: "0xABC".into(),
+            pool: "pool_a".into(),
             extraction_date: "2026.03.24.10".into(),
             risk_level: "medium".into(),
             total_assessment_per_risk_type: 5,
         },
         dsolver_pool_risk_monitoring::models::RiskLevelSummaryRow {
-            pool_name: "pool_a".into(),
+            currencies: "USDC/USDT".into(),
+            pool_address: "0xABC".into(),
+            pool: "pool_a".into(),
             extraction_date: "2026.03.24.10".into(),
             risk_level: "high".into(),
             total_assessment_per_risk_type: 2,
