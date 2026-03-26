@@ -8,7 +8,6 @@ use uuid::Uuid;
 use crate::alerts::{self, Alert};
 use crate::config::{AlertConfig, RetryConfig};
 use crate::errors::AppError;
-use crate::metrics;
 use crate::models::{SimulationParams, SimulationRequest, SimulationResponse};
 
 /// Shared state passed into each spawned task.
@@ -128,8 +127,6 @@ impl SimulationClient {
         let response = self.send_with_retry(&request_body).await?;
 
         let elapsed_ms = start.elapsed().as_secs_f64() * 1000.0;
-        metrics::record_simulation_duration_ms(pair_label, elapsed_ms);
-        metrics::record_simulation_success(pair_label);
 
         tracing::info!(
             call_id = %call_id,
@@ -157,28 +154,6 @@ impl SimulationClient {
             return Err(AppError::IncompleteData(response.meta.result_quality.clone()));
         }
 
-        // ── Record per-pool metrics ──────────────────────────────
-        metrics::set_block_number(response.meta.block_number);
-        metrics::set_matching_pools(response.meta.matching_pools);
-        metrics::set_candidate_pools(response.meta.candidate_pools);
-
-        for pool in &response.data {
-            metrics::record_risk_score(
-                &pool.pool_address,
-                pool.execution_risk.risk_score,
-            );
-            for &bps in &pool.slippage_bps {
-                metrics::record_slippage_bps(&pool.pool_address, bps);
-            }
-            for &gas in &pool.gas_used {
-                metrics::record_gas_used(&pool.pool_address, gas);
-            }
-            metrics::record_pool_utilization_bps(
-                &pool.pool_address,
-                pool.pool_utilization_bps,
-            );
-            metrics::record_risk_level(&pool.pool_name, &pool.execution_risk.risk_level);
-        }
 
         // ── Persist ──────────────────────────────────────────────
         crate::db::insert_simulation_result(&self.db_pool, call_id, &response).await?;

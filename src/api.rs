@@ -7,7 +7,6 @@ use axum::middleware::{self, Next};
 use axum::response::IntoResponse;
 use axum::routing::get;
 use axum::{Json, Router};
-use metrics_exporter_prometheus::PrometheusHandle;
 use sqlx::PgPool;
 use uuid::Uuid;
 
@@ -20,7 +19,6 @@ use crate::models::{
 #[derive(Clone)]
 pub struct ApiState {
     pub db: PgPool,
-    pub prom: PrometheusHandle,
     pub api_key: Option<String>,
     pub risk_score_threshold: i32,
     pub rate_limit_rps: u64,
@@ -31,14 +29,12 @@ pub struct ApiState {
 impl ApiState {
     pub fn new(
         db: PgPool,
-        prom: PrometheusHandle,
         api_key: Option<String>,
         risk_score_threshold: i32,
         rate_limit_rps: u64,
     ) -> Self {
         Self {
             db,
-            prom,
             api_key,
             risk_score_threshold,
             rate_limit_rps,
@@ -160,7 +156,75 @@ async fn health(State(state): State<Arc<ApiState>>) -> Json<HealthResponse> {
 }
 
 async fn prometheus_metrics(State(state): State<Arc<ApiState>>) -> impl IntoResponse {
-    state.prom.render()
+    let mut out = String::new();
+
+    if let Ok(rows) = sqlx::query_as::<_, PoolResultRow>(
+        r#"
+        select
+            SPLIT_PART(a.pool_name, '::', 2)     AS currencies,
+            a.pool_address,
+            SPLIT_PART(a.pool_name, '::', 1)     AS pool,
+            max(b.id::text)::uuid                AS id,
+            max(a.amounts_out::text)::jsonb      AS amounts_out,
+            max(a.gas_used::text)::jsonb         AS gas_used,
+            max(a.block_number)                  AS block_number,
+            max(a.slippage_bps::text)::jsonb     AS slippage_bps,
+            max(a.pool_utilization_bps)          AS pool_utilization_bps,
+            max(a.simulation_result_id::text)::uuid AS simulation_result_id,
+            a.risk_level,
+            max(a.risk_score)                    AS risk_score,
+            count(a.pool_name)                   AS total
+        FROM pool_result AS a
+        JOIN result AS b ON b.id = a.simulation_result_id
+        WHERE a.risk_score >= $1
+        GROUP BY a.pool_address, a.pool_name, a.risk_level
+        order by currencies, pool, a.pool_address
+        "#,
+    )
+    .bind(state.risk_score_threshold)
+    .fetch_all(&state.db)
+    .await {
+        out.push_str("# HELP high_risk_pools_score Maximum risk score of high risk pools\n");
+        out.push_str("# TYPE high_risk_pools_score gauge\n");
+        for row in &rows {
+            out.push_str(&format!(
+                "high_risk_pools_score{{currencies=\"{}\",pool=\"{}\",pool_address=\"{}\",risk_level=\"{}\"}} {}\n",
+                row.currencies, row.pool, row.pool_address, row.risk_level, row.risk_score
+            ));
+        }
+    }
+
+    if let Ok(rows) = sqlx::query_as::<_, RiskLevelSummaryRow>(
+        r#"
+        select
+            SPLIT_PART(a.pool_name, '::', 2) AS currencies,
+            a.pool_address,
+            SPLIT_PART(a.pool_name, '::', 1) AS pool,
+            TO_CHAR(b.created_at , 'YYYY.MM.DD.HH24') as extraction_date,
+            a.risk_level,
+            count(a.pool_name) as total_assessment_per_risk_type
+        FROM pool_result AS a
+        JOIN result AS b ON b.id = a.simulation_result_id
+        group by a.pool_address, extraction_date, a.pool_name, a.risk_level
+        order by extraction_date, currencies, pool, a.pool_address
+        "#,
+    )
+    .fetch_all(&state.db)
+    .await {
+        out.push_str("# HELP risk_level_summary_total Total assessments per risk type\n");
+        out.push_str("# TYPE risk_level_summary_total gauge\n");
+        for row in rows {
+            out.push_str(&format!(
+                "risk_level_summary_total{{currencies=\"{}\",pool=\"{}\",pool_address=\"{}\",extraction_date=\"{}\",risk_level=\"{}\"}} {}\n",
+                row.currencies, row.pool, row.pool_address, row.extraction_date, row.risk_level, row.total_assessment_per_risk_type
+            ));
+        }
+    }
+
+    (
+        [(axum::http::header::CONTENT_TYPE, "text/plain; version=0.0.4")],
+        out
+    )
 }
 
 async fn list_results(

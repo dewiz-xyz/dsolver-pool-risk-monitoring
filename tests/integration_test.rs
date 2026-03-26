@@ -316,13 +316,8 @@ fn lazy_api_state(api_key: Option<&str>) -> Arc<dsolver_pool_risk_monitoring::ap
         .connect_lazy("postgres://fake:fake@localhost:5432/fake")
         .expect("lazy pool creation must not fail");
 
-    let recorder = metrics_exporter_prometheus::PrometheusBuilder::new()
-        .build_recorder();
-    let prom = recorder.handle();
-
     Arc::new(dsolver_pool_risk_monitoring::api::ApiState::new(
         pool,
-        prom,
         api_key.map(str::to_owned),
         70,
         100,

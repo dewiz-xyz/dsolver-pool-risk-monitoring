@@ -10,7 +10,6 @@ use dsolver_pool_risk_monitoring::api::{self, ApiState};
 use dsolver_pool_risk_monitoring::client::{run_all_simulations, SimulationClient};
 use dsolver_pool_risk_monitoring::config::AppConfig;
 use dsolver_pool_risk_monitoring::db;
-use dsolver_pool_risk_monitoring::metrics;
 use dsolver_pool_risk_monitoring::models::SimulationParams;
 
 fn main() {
@@ -59,12 +58,10 @@ async fn async_main() {
         .expect("failed to run migrations");
 
     // ── Prometheus ────────────────────────────────────────────────
-    let prom_handle = metrics::install_prometheus();
 
     // ── API Server (background) ──────────────────────────────────
     let api_state = Arc::new(ApiState::new(
         db_pool.clone(),
-        prom_handle,
         config.api_key.clone(),
         config.alerts.risk_score_threshold,
         config.rate_limit_rps,
@@ -128,7 +125,6 @@ async fn async_main() {
                     }
                     Err(err) => {
                         tracing::error!(error = %err, "simulation failed");
-                        metrics::record_simulation_failure("unknown");
                         error_count += 1;
                     }
                 }

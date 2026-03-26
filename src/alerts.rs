@@ -1,5 +1,4 @@
 use crate::config::AlertConfig;
-use crate::metrics;
 use crate::models::{PoolResult, SimulationResponse};
 
 /// Alert payload sent to the configured webhook (if any).
@@ -43,7 +42,6 @@ pub fn evaluate_response(
                 block_number: pool.block_number,
                 request_id: response.request_id.clone(),
             };
-            metrics::record_alert_fired("high_risk_score");
             tracing::warn!(
                 pool = %pool.pool_address,
                 score = pool.execution_risk.risk_score,
@@ -82,7 +80,6 @@ fn check_slippage(
                 block_number: pool.block_number,
                 request_id: response.request_id.clone(),
             };
-            metrics::record_alert_fired("high_slippage");
             tracing::warn!(
                 pool = %pool.pool_address,
                 slippage_bps = bps,
