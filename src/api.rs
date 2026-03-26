@@ -310,7 +310,7 @@ async fn high_risk_pools(
             count(a.pool_name)                   AS total
         FROM pool_result AS a
         JOIN result AS b ON b.id = a.simulation_result_id
-        WHERE a.risk_score >= 1000
+        WHERE a.risk_score >= $1
         GROUP BY a.pool_address, a.pool_name, a.risk_level
         order by currencies, pool, a.pool_address
         "#,
