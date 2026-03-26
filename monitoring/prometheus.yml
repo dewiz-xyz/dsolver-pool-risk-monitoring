@@ -12,3 +12,9 @@ scrape_configs:
   #   high_risk_pools_score{currencies,pool,pool_address,risk_level}
   #   risk_level_summary_total{currencies,pool,pool_address,extraction_date,risk_level}
   - job_name: dsolver-pool-risk-monitor
+    static_configs:
+      - targets:
+          # Replace with host:port where the Rust app is listening (api_port in config.json)
+          - localhost:9123
+    metrics_path: /metrics
+    scrape_interval: 5s
