@@ -1,6 +1,8 @@
+use std::result;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
 
+use axum::http::response;
 use reqwest::Client;
 use sqlx::PgPool;
 use uuid::Uuid;
@@ -137,8 +139,25 @@ impl SimulationClient {
             pools_found = response.data.len(),
             block = response.meta.block_number,
             elapsed_ms = elapsed_ms,
+            response_status = %response.meta.status,
+            result_quality = %response.meta.result_quality,
             "response received"
         );
+
+        // ── Evaluate alerts ──────────────────────────────────────
+        // TODO: Ommit alerts temporarily until we have a better understanding of the data shape and distribution.
+        // let fired = alerts::evaluate_response(&self.alert_config, &response);
+        let fired: Vec<Alert> = vec![]; 
+
+        if !fired.is_empty() {
+            if let Some(ref url) = self.alert_config.webhook_url {
+                alerts::deliver_webhook(&self.http, url, &fired).await;
+            }
+        }
+
+        if response.meta.result_quality != "complete" {
+            return Err(AppError::IncompleteData(response.meta.result_quality.clone()));
+        }
 
         // ── Record per-pool metrics ──────────────────────────────
         metrics::set_block_number(response.meta.block_number);
@@ -161,17 +180,6 @@ impl SimulationClient {
                 pool.pool_utilization_bps,
             );
             metrics::record_risk_level(&pool.pool_name, &pool.execution_risk.risk_level);
-        }
-
-        // ── Evaluate alerts ──────────────────────────────────────
-        // TODO: Ommit alerts temporarily until we have a better understanding of the data shape and distribution.
-        // let fired = alerts::evaluate_response(&self.alert_config, &response);
-        let fired: Vec<Alert> = vec![]; 
-
-        if !fired.is_empty() {
-            if let Some(ref url) = self.alert_config.webhook_url {
-                alerts::deliver_webhook(&self.http, url, &fired).await;
-            }
         }
 
         // ── Persist ──────────────────────────────────────────────

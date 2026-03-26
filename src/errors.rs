@@ -16,4 +16,7 @@ pub enum AppError {
 
     #[error("spawned task panicked: {0}")]
     TaskPanic(String),
+
+    #[error("incomplete simulation response: {0}")]
+    IncompleteData(String),
 }
