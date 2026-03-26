@@ -6,7 +6,7 @@
   "panels": [
     {
       "title": "High Risk Pools (Score)",
-      "type": "table",
+      "type": "barchart",
       "datasource": "prometheus",
       "gridPos": {
         "h": 12,
@@ -23,10 +23,72 @@
         }
       ],
       "fieldConfig": {
-        "defaults": {}
+        "defaults": {
+          "color": {
+            "mode": "thresholds"
+          },
+          "custom": {
+            "axisLabel": "Risk Score",
+            "axisPlacement": "left",
+            "scaleDistribution": {
+              "type": "linear"
+            }
+          },
+          "thresholds": {
+            "mode": "absolute",
+            "steps": [
+              {
+                "color": "green",
+                "value": null
+              },
+              {
+                "color": "orange",
+                "value": 70
+              },
+              {
+                "color": "red",
+                "value": 90
+              }
+            ]
+          }
+        }
       },
+      "transformations": [
+        {
+          "id": "organize",
+          "options": {
+            "excludeByName": {
+              "Time": true,
+              "currencies": true,
+              "pool": true,
+              "risk_level": true,
+              "Metric": true
+            },
+            "indexByName": {
+              "pool_address": 0,
+              "Value": 1
+            },
+            "renameByName": {
+              "Value": "risk_score"
+            }
+          }
+        }
+      ],
       "options": {
-        "showHeader": true
+        "xField": "pool_address",
+        "orientation": "vertical",
+        "showValue": "auto",
+        "stacking": "none",
+        "barWidth": 0.97,
+        "groupWidth": 0.7,
+        "legend": {
+          "displayMode": "hidden",
+          "placement": "bottom"
+        },
+        "tooltip": {
+          "mode": "single",
+          "sort": "none"
+        }
       }
     },
     {
