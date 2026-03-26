@@ -14,7 +14,7 @@ scrape_configs:
   - job_name: dsolver-pool-risk-monitor
     static_configs:
       - targets:
-          # Replace with host:port where the Rust app is listening (api_port in config.json)
+          # Port must match api_port in your config.json
           - localhost:9123
     metrics_path: /metrics
     scrape_interval: 5s
