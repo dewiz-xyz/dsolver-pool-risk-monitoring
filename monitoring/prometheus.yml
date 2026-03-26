@@ -15,6 +15,6 @@ scrape_configs:
     static_configs:
       - targets:
           # Port must match api_port in your config.json
-          - localhost:9123
+          - localhost:3000
     metrics_path: /metrics
     scrape_interval: 5s
