@@ -294,11 +294,18 @@ async fn high_risk_pools(
 ) -> Result<Json<ApiListResponse<PoolResultRow>>, AppApiError> {
     let rows = sqlx::query_as::<_, PoolResultRow>(
         r#"
-        SELECT pr.* FROM pool_result pr
-        JOIN result r ON r.id = pr.simulation_result_id
-        WHERE pr.risk_score >= $1
-        ORDER BY pr.risk_score DESC, r.created_at DESC
-        LIMIT 100
+        select
+            SPLIT_PART(a.pool_name, '::', 2) AS currencies,
+            a.pool_address,
+            SPLIT_PART(a.pool_name, '::', 1) AS pool,
+            a.risk_level,
+            max(a.risk_score) as risk_score,
+            count(a.pool_name) as total
+        FROM pool_result AS a
+        JOIN result AS b ON b.id = a.simulation_result_id
+        where risk_score >= $1
+        group by a.pool_address, a.pool_name, a.risk_level
+        order by currencies, pool, a.pool_address
         "#,
     )
     .bind(state.risk_score_threshold)
@@ -318,15 +325,17 @@ async fn risk_level_summary(
 ) -> Result<Json<ApiListResponse<RiskLevelSummaryRow>>, AppApiError> {
     let rows = sqlx::query_as::<_, RiskLevelSummaryRow>(
         r#"
-        SELECT
-            a.pool_name,
-            TO_CHAR(b.created_at, 'YYYY.MM.DD.HH24') AS extraction_date,
+        select
+            SPLIT_PART(a.pool_name, '::', 2) AS currencies,
+            a.pool_address,
+            SPLIT_PART(a.pool_name, '::', 1) AS pool,
+            TO_CHAR(b.created_at , 'YYYY.MM.DD.HH24') as extraction_date,
             a.risk_level,
-            COUNT(a.pool_name) AS total_assessment_per_risk_type
+            count(a.pool_name) as total
         FROM pool_result AS a
         JOIN result AS b ON b.id = a.simulation_result_id
-        GROUP BY a.pool_name, extraction_date, a.risk_level
-        ORDER BY a.pool_name, extraction_date
+        group by a.pool_address, extraction_date, a.pool_name, a.risk_level
+        order by extraction_date, currencies, pool, a.pool_address
         "#,
     )
     .fetch_all(&state.db)
