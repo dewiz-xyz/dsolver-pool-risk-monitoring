@@ -155,7 +155,7 @@ impl SimulationClient {
             }
         }
 
-        if response.meta.result_quality != "complete" {
+        if response.meta.result_quality != "complete" && response.meta.result_quality != "partial" {
             return Err(AppError::IncompleteData(response.meta.result_quality.clone()));
         }
 
