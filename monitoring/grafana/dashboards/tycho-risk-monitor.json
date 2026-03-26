@@ -5,7 +5,7 @@
   "editable": true,
   "panels": [
     {
-      "title": "High Risk Pools (Score)",
+      "title": "High Risk Pools by Address",
       "type": "barchart",
       "datasource": "prometheus",
       "gridPos": {
@@ -126,5 +126,5 @@
   },
   "title": "Pool Risk Monitoring (Derived Metrics)",
   "uid": "tycho-risk",
-  "version": 2
+  "version": 3
 }
