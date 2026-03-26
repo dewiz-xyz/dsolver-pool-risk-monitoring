@@ -83,7 +83,8 @@ pub struct PoolResultRow {
     pub id: Uuid,
     pub simulation_result_id: Uuid,
     pub pool_address: String,
-    pub pool_name: String,
+    pub currencies: String,
+    pub pool: String,
     pub amounts_out: serde_json::Value,
     pub gas_used: serde_json::Value,
     pub block_number: i64,
@@ -128,7 +129,9 @@ pub struct ListPoolsQuery {
 /// One row from the risk-level summary aggregation query.
 #[derive(Debug, Clone, sqlx::FromRow, Serialize)]
 pub struct RiskLevelSummaryRow {
-    pub pool_name: String,
+    pub currencies: String,
+    pub pool_address: String,
+    pub pool: String,
     pub extraction_date: String,
     pub risk_level: String,
     pub total_assessment_per_risk_type: i64,

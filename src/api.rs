@@ -295,16 +295,23 @@ async fn high_risk_pools(
     let rows = sqlx::query_as::<_, PoolResultRow>(
         r#"
         select
-            SPLIT_PART(a.pool_name, '::', 2) AS currencies,
+            SPLIT_PART(a.pool_name, '::', 2)     AS currencies,
             a.pool_address,
-            SPLIT_PART(a.pool_name, '::', 1) AS pool,
+            SPLIT_PART(a.pool_name, '::', 1)     AS pool,
+            max(b.id::text)::uuid                AS id,
+            max(a.amounts_out::text)             AS amounts_out,
+            max(a.gas_used::text)                AS gas_used,
+            max(a.block_number)                  AS block_number,
+            max(a.slippage_bps::text)            AS slippage_bps,
+            max(a.pool_utilization_bps)          AS pool_utilization_bps,
+            max(a.simulation_result_id::text)::uuid AS simulation_result_id,
             a.risk_level,
-            max(a.risk_score) as risk_score,
-            count(a.pool_name) as total
+            max(a.risk_score)                    AS risk_score,
+            count(a.pool_name)                   AS total
         FROM pool_result AS a
         JOIN result AS b ON b.id = a.simulation_result_id
-        where risk_score >= $1
-        group by a.pool_address, a.pool_name, a.risk_level
+        WHERE a.risk_score >= 1000
+        GROUP BY a.pool_address, a.pool_name, a.risk_level
         order by currencies, pool, a.pool_address
         "#,
     )
@@ -331,7 +338,7 @@ async fn risk_level_summary(
             SPLIT_PART(a.pool_name, '::', 1) AS pool,
             TO_CHAR(b.created_at , 'YYYY.MM.DD.HH24') as extraction_date,
             a.risk_level,
-            count(a.pool_name) as total
+            count(a.pool_name) as total_assessment_per_risk_type
         FROM pool_result AS a
         JOIN result AS b ON b.id = a.simulation_result_id
         group by a.pool_address, extraction_date, a.pool_name, a.risk_level
