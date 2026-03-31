@@ -25,7 +25,7 @@
       "fieldConfig": {
         "defaults": {
           "color": {
-            "mode": "thresholds"
+            "mode": "palette-classic"
           },
           "custom": {
             "axisLabel": "Risk Score",
@@ -37,35 +37,13 @@
           "thresholds": {
             "mode": "absolute",
             "steps": [
-              {
-                "color": "green",
-                "value": null
-              },
-              {
-                "color": "orange",
-                "value": 70
-              },
-              {
-                "color": "red",
-                "value": 90
-              }
-            ]
-          }
-        }
-      },
-      "transformations": [
-        {
-          "id": "organize",
-          "options": {
-            "excludeByName": {
-              "Time": true,
-              "currencies": true,
-              "pool": true,
-              "risk_level": true,
-              "Metric": true
-            },
-            "indexByName": {
-              "pool_address": 0,
+              { "color": "green", "value": null },
+              { "color": "orange", "value": 70 },
+              {              {              {              {              {                          {  or                                  {   "l         elds",
+                                                                     e",
+                                   "              : {
+              "Tim              "                ci                                     ,
+                                                       ":                                                                "pool_address": 0,
               "Value": 1
             },
             "renameByName": {
@@ -74,20 +52,13 @@
           }
         }
       ],
-      "options": {
-        "xField": "pool_address",
-        "orientation": "vertical",
-        "showValue": "auto",
-        "stacking": "none",
-        "barWidth": 0.97,
-        "groupWidth": 0.7,
-        "legend": {
-          "displayMode": "hidden",
-          "placement": "bottom"
-        },
-        "tooltip": {
-          "mode": "single",
-          "sort": "none"
+                                       ool                              n": "ve                               auto                            ",
+            Wi        97,
+                   ": 0.7,
+                   ": 0.7,
+   "d   "d   "d   "d   "n",
+   "d   "d   "d   "d   "n",
+           ool                    ool                    ool              "sort": "none"
         }
       }
     },
@@ -96,35 +67,17 @@
       "type": "table",
       "datasource": "prometheus",
       "gridPos": {
-        "h": 12,
-        "w": 24,
-        "x": 0,
-        "y": 12
-      },
-      "targets": [
-        {
-          "expr": "risk_level_summary_total",
+                                                                        },
+                                                    _level_summary_total",
           "format": "table",
           "instant": true,
-          "refId": "A"
-        }
-      ],
-      "fieldConfig": {
-        "defaults": {}
-      },
-      "options": {
-        "showHeader": true
-      }
-    }
-  ],
-  "refresh": "5s",
-  "schemaVersion": 38,
+          "re          "re          "re          "re          "re          "re          "re          "re          "re          "re          "re                    "re           "         ,
+                                                                    "T           
+               Metric":     
+                                                                                                                                                ue
+                     "refres                     "rion": 38,
   "style": "dark",
   "time": {
-    "from": "now-6h",
-    "to": "now"
-  },
-  "title": "Pool Risk Monitoring (Derived Metrics)",
-  "uid": "tycho-risk",
-  "version": 3
+    "from": "now-6    "from": "now-6    "f
+  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  "  3
 }
