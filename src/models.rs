@@ -94,6 +94,18 @@ pub struct PoolResultRow {
     pub risk_level: String,
 }
 
+/// One row from the `high_risk_pools` aggregated query.
+#[derive(Debug, Clone, sqlx::FromRow, Serialize)]
+pub struct HighRiskPoolRow {
+    pub currencies: String,
+    pub pool_address: String,
+    pub pool: String,
+    pub block_number: i64,
+    pub risk_level: String,
+    pub risk_score: i32,
+    pub total: i64,
+}
+
 // ─── API Response Types ──────────────────────────────────────────
 
 #[derive(Debug, Serialize)]

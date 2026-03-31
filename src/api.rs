@@ -11,7 +11,7 @@ use sqlx::PgPool;
 use uuid::Uuid;
 
 use crate::models::{
-    ApiListResponse, HealthResponse, ListPoolsQuery, ListResultsQuery,
+    ApiListResponse, HealthResponse, HighRiskPoolRow, ListPoolsQuery, ListResultsQuery,
     PoolResultRow, RiskLevelSummaryRow, SimulationResultRow,
 };
 
@@ -355,28 +355,21 @@ async fn list_pools(
 /// ordered by risk_score descending.
 async fn high_risk_pools(
     State(state): State<Arc<ApiState>>,
-) -> Result<Json<ApiListResponse<PoolResultRow>>, AppApiError> {
-    let rows = sqlx::query_as::<_, PoolResultRow>(
+) -> Result<Json<ApiListResponse<HighRiskPoolRow>>, AppApiError> {
+    let rows = sqlx::query_as::<_, HighRiskPoolRow>(
         r#"
-        select
-            SPLIT_PART(a.pool_name, '::', 2)     AS currencies,
+        SELECT
+            a.currencies,
             a.pool_address,
-            SPLIT_PART(a.pool_name, '::', 1)     AS pool,
-            max(b.id::text)::uuid                AS id,
-            max(a.amounts_out::text)::jsonb      AS amounts_out,
-            max(a.gas_used::text)::jsonb         AS gas_used,
-            max(a.block_number)                  AS block_number,
-            max(a.slippage_bps::text)::jsonb     AS slippage_bps,
-            max(a.pool_utilization_bps)          AS pool_utilization_bps,
-            max(a.simulation_result_id::text)::uuid AS simulation_result_id,
+            a.pool,
+            max(a.block_number)                     AS block_number,
             a.risk_level,
-            max(a.risk_score)                    AS risk_score,
-            count(a.pool_name)                   AS total
-        FROM pool_result AS a
-        JOIN result AS b ON b.id = a.simulation_result_id
+            max(a.risk_score)                       AS risk_score,
+            count(*)                                AS total
+        FROM vw_pool_risk AS a
         WHERE a.risk_score >= $1
-        GROUP BY a.pool_address, a.pool_name, a.risk_level
-        order by currencies, pool, a.pool_address
+        GROUP BY a.pool_address, a.pool, a.currencies, a.risk_level
+        ORDER BY a.currencies, a.pool, a.pool_address;
         "#,
     )
     .bind(state.risk_score_threshold)

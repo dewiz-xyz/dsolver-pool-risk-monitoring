@@ -381,6 +381,68 @@ fn test_api_list_response_risk_summary_shape() {
     assert_eq!(json["data"][1]["total_assessment_per_risk_type"], 2);
 }
 
+/// HighRiskPoolRow serializes to the expected JSON field names.
+#[test]
+fn test_high_risk_pool_row_serializes_correctly() {
+    let row = dsolver_pool_risk_monitoring::models::HighRiskPoolRow {
+        currencies: "USDC/ETH".into(),
+        pool_address: "0xDEAD".into(),
+        pool: "uniswap_v3".into(),
+        block_number: 19500000,
+        risk_level: "high".into(),
+        risk_score: 85,
+        total: 7,
+    };
+
+    let json = serde_json::to_value(&row).unwrap();
+
+    assert_eq!(json["currencies"], "USDC/ETH");
+    assert_eq!(json["pool_address"], "0xDEAD");
+    assert_eq!(json["pool"], "uniswap_v3");
+    assert_eq!(json["block_number"], 19500000_i64);
+    assert_eq!(json["risk_level"], "high");
+    assert_eq!(json["risk_score"], 85);
+    assert_eq!(json["total"], 7_i64);
+}
+
+/// ApiListResponse<HighRiskPoolRow> wraps data with a count field.
+#[test]
+fn test_api_list_response_high_risk_pools_shape() {
+    let rows = vec![
+        dsolver_pool_risk_monitoring::models::HighRiskPoolRow {
+            currencies: "USDC/ETH".into(),
+            pool_address: "0xDEAD".into(),
+            pool: "uniswap_v3".into(),
+            block_number: 19500000,
+            risk_level: "high".into(),
+            risk_score: 85,
+            total: 3,
+        },
+        dsolver_pool_risk_monitoring::models::HighRiskPoolRow {
+            currencies: "DAI/USDC".into(),
+            pool_address: "0xBEEF".into(),
+            pool: "curve_stable".into(),
+            block_number: 19500001,
+            risk_level: "critical".into(),
+            risk_score: 95,
+            total: 1,
+        },
+    ];
+
+    let response = dsolver_pool_risk_monitoring::models::ApiListResponse {
+        count: rows.len(),
+        data: rows,
+    };
+
+    let json = serde_json::to_value(&response).unwrap();
+
+    assert_eq!(json["count"], 2);
+    assert_eq!(json["data"].as_array().unwrap().len(), 2);
+    assert_eq!(json["data"][0]["risk_score"], 85);
+    assert_eq!(json["data"][1]["risk_level"], "critical");
+    assert_eq!(json["data"][1]["total"], 1_i64);
+}
+
 /// /api/v1/pools/risk-summary returns 401 when no API key is configured
 /// but none is supplied. Auth middleware fires before any DB access.
 #[tokio::test]
