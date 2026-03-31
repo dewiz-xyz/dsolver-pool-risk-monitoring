@@ -1,11 +1,19 @@
 select
-	SPLIT_PART(a.pool_name, '::', 2) AS currencies,
-	a.pool_address,
-	SPLIT_PART(a.pool_name, '::', 1) AS pool,
+    a.currencies,
+    a.pool_address,
+    a.pool,
+    max(b.id::text)::uuid                AS id,
+    max(a.amounts_out::text)::jsonb      AS amounts_out,
+    max(a.gas_used::text)::jsonb         AS gas_used,
+    max(a.block_number)                  AS block_number,
+    max(a.slippage_bps::text)::jsonb     AS slippage_bps,
+    max(a.pool_utilization_bps)          AS pool_utilization_bps,
+    max(a.simulation_result_id::text)::uuid AS simulation_result_id,
     a.risk_level,
-	count(a.pool_name) as total
-FROM pool_result AS a
-JOIN result AS b ON b.id = a.simulation_result_id
---where a.pool_name = 'aerodrome_slipstreams::USDC/USDT'
-group by a.pool_address, a.pool_name, a.risk_level
-order by currencies, pool, a.pool_address;
+    max(a.risk_score)                    AS risk_score,
+    count(a.pool_name)                   AS total
+FROM vw_pool_risk vpr  AS a
+JOIN result AS b ON b.id = simulation_result_id
+WHERE a.risk_score >= 1000
+GROUP BY a.pool_address, a.pool_name, a.risk_level
+order by a.currencies, a.pool, a.pool_address
